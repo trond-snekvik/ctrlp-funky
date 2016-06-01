@@ -9,7 +9,7 @@
 " false positives.
 function! ctrlp#funky#ft#c#filters()
   let filters = [
-        \ { 'pattern': '^\w.*\s*\w\_[\t ]*(',
+        \ { 'pattern': '^\w\S*\s\+\w.*\s*(\_[^)]*)\_s*{',
         \   'formatter': [] }
   \ ]
   return filters
