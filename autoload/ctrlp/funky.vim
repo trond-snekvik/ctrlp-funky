@@ -131,7 +131,7 @@ endfunction
 " In most of cases, this is used for opening folds.
 "
 function! s:after_jump()
-  let pattern = '^\m\C\(z[xoOv]\)\?\(z[zt]\)\?$'
+  let pattern = '^\m\C\(z[xoOv]\)\?\(z[zt]\)\?\(jz[xoOv]k\)\?$'
 
   " parse setting.
   if empty(s:after_jump)
@@ -151,18 +151,25 @@ function! s:after_jump()
 
   " verify action string pattern.
   if action !~ pattern
-    echoerr 'Invalid content in g:ctrlp_funcky_after_jump, need "z[xov]z[zt]"'
+    echoerr 'Invalid content in g:ctrlp_funcky_after_jump, need "z[xov]z[zt][{jz[xov]k}]"'
     return
   else
     let matched = matchlist(action, pattern)
-    let [foldview, scrolling] = matched[1:2]
+    let [foldview, scrolling, foldnext] = matched[1:3]
   endif
 
-  if !&foldenable || foldlevel(line('.')) == 0
-    let action = scrolling
+  if !empty(scrolling)
+    silent! execute 'normal! ' . scrolling . '0'
   endif
 
-  silent! execute 'normal! ' . action . '0'
+  if &foldenable
+    if !empty(foldview) && (foldlevel(line('.')) > 0)
+      silent! execute 'normal! ' . foldview . '0'
+    endif
+    if !empty(foldnext) && (foldlevel(line('.') + 1) > 0)
+      silent! execute 'normal! ' . foldnext . '0'
+    endif
+  endif
 endfunction
 
 function! s:definition(line)
